@@ -1,15 +1,14 @@
-# app.py
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 from backend import read_students, create_student, delete_students, update_student
+import pandas as pd
 
 class StudentApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Cadastro de Alunos")
-        self.create_table()
-        self.create_buttons()
-        self.populate_table()
+        self.root.title("Aplicação de Gestão de Alunos")
+        self.create_table()  # Chamando a função para criar a tabela
+        self.create_buttons()  # Chamando a função para criar os botões
 
     def create_table(self):
         frame = tk.Frame(self.root)
@@ -52,7 +51,7 @@ class StudentApp:
         btn_cadastrar = tk.Button(button_frame, text="Cadastrar", command=self.open_register_window)
         btn_alterar = tk.Button(button_frame, text="Alterar", command=self.open_update_window)
         btn_excluir = tk.Button(button_frame, text="Excluir", command=self.delete_selected)
-        btn_exportar = tk.Button(button_frame, text="Exportar", command=self.placeholder_function)
+        btn_exportar = tk.Button(button_frame, text="Exportar", command=self.open_export_window)
 
         btn_listar.grid(row=0, column=0, padx=10)
         btn_cadastrar.grid(row=0, column=1, padx=10)
@@ -190,8 +189,57 @@ class StudentApp:
         delete_students(ids)  # Chama a função para excluir os alunos
         self.populate_table()  # Atualiza a tabela para remover os alunos excluídos
 
-    def placeholder_function(self):
-        pass
+    def open_export_window(self):
+        # Função para abrir a janela de exportação
+        export_window = tk.Toplevel(self.root)
+        export_window.title("Exportar Lista de Alunos")
+
+        tk.Label(export_window, text="Escolha o formato do arquivo:").pack(padx=10, pady=10)
+
+        format_var = tk.StringVar(value="CSV")
+        tk.Radiobutton(export_window, text="CSV", variable=format_var, value="CSV").pack(anchor="w", padx=10)
+        tk.Radiobutton(export_window, text="Excel", variable=format_var, value="Excel").pack(anchor="w", padx=10)
+
+        button_frame = tk.Frame(export_window)
+        button_frame.pack(pady=10)
+
+        tk.Button(button_frame, text="Salvar", command=lambda: self.save_export(format_var.get(), export_window)).pack(side="left", padx=10)
+        tk.Button(button_frame, text="Cancelar", command=export_window.destroy).pack(side="right", padx=10)
+
+    def save_export(self, file_format, window):
+        # Função para salvar o arquivo exportado
+        file_path = filedialog.asksaveasfilename(
+            title="Salvar Arquivo",
+            defaultextension=f".{file_format.lower()}",
+            filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx")],
+            initialfile=f"alunos.{file_format.lower()}"
+        )
+
+        # Verifica se o usuário cancelou o salvamento
+        if not file_path:
+            return
+
+        # Obtém os dados do banco de dados
+        students = read_students()
+        df = pd.DataFrame(students, columns=[
+            "id", "matricula", "cpf", "nome", "idade", "email", "curso",
+            "ano_conclusao", "periodo_conclusao", "situacao", 
+            "telefone_celular", "sexo", "raca"
+        ])
+
+        # Exporta o arquivo no formato escolhido
+        try:
+            if file_format == "CSV":
+                df.to_csv(file_path, index=False)
+            elif file_format == "Excel":
+                df.to_excel(file_path, index=False)
+
+            messagebox.showinfo("Exportar", "Dados exportados com sucesso!")
+        except Exception as e:
+            messagebox.showerror("Erro ao Exportar", f"Ocorreu um erro ao salvar o arquivo: {e}")
+        
+        window.destroy()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
