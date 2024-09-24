@@ -3,12 +3,12 @@ from tkinter import ttk, messagebox, filedialog
 from backend import read_students, create_student, delete_students, update_student
 import pandas as pd
 
-class StudentApp:
+class radapp:
     def __init__(self, root):
         self.root = root
         self.root.title("Aplicação de Gestão de Alunos")
-        self.create_table()  # Chamando a função para criar a tabela
-        self.create_buttons()  # Chamando a função para criar os botões
+        self.create_table() 
+        self.create_buttons()
 
     def create_table(self):
         frame = tk.Frame(self.root)
@@ -68,7 +68,6 @@ class StudentApp:
             self.tree.insert('', tk.END, values=student)
 
     def open_register_window(self):
-        # Criar uma nova janela para o cadastro de alunos
         register_window = tk.Toplevel(self.root)
         register_window.title("Cadastrar Aluno")
         
@@ -87,7 +86,6 @@ class StudentApp:
             'Raça': tk.StringVar()
         }
 
-        # Layout da janela de cadastro
         for idx, (label, var) in enumerate(fields.items()):
             tk.Label(register_window, text=label).grid(row=idx, column=0, padx=10, pady=5)
             
@@ -102,15 +100,12 @@ class StudentApp:
             else:
                 tk.Entry(register_window, textvariable=var).grid(row=idx, column=1, padx=10, pady=5)
 
-        # Botão para salvar o aluno
         btn_save = tk.Button(register_window, text="Salvar", command=lambda: self.save_student(fields, register_window))
         btn_save.grid(row=len(fields), column=0, columnspan=2, pady=10)
 
     def save_student(self, fields, window):
-        # Coleta os valores inseridos nos campos
         values = {label: var.get() for label, var in fields.items()}
         
-        # Insere o aluno no banco de dados
         create_student(
             values['Matrícula'], values['CPF'], values['Nome'], values['Idade'], values['Email'], 
             values['Curso'], values['Ano Conclusão'], values['Período Conclusão'], values['Situação'],
@@ -185,12 +180,11 @@ class StudentApp:
         if not messagebox.askyesno("Confirmar", "Tem certeza de que deseja excluir os alunos selecionados?"):
             return
         
-        ids = [int(self.tree.item(item, 'values')[0]) for item in selected_items]  # Converte IDs para inteiros
-        delete_students(ids)  # Chama a função para excluir os alunos
-        self.populate_table()  # Atualiza a tabela para remover os alunos excluídos
+        ids = [int(self.tree.item(item, 'values')[0]) for item in selected_items]
+        delete_students(ids)
+        self.populate_table()
 
     def open_export_window(self):
-        # Função para abrir a janela de exportação
         export_window = tk.Toplevel(self.root)
         export_window.title("Exportar Lista de Alunos")
 
@@ -215,11 +209,9 @@ class StudentApp:
             initialfile=f"alunos.{file_format.lower()}"
         )
 
-        # Verifica se o usuário cancelou o salvamento
         if not file_path:
             return
 
-        # Obtém os dados do banco de dados
         students = read_students()
         df = pd.DataFrame(students, columns=[
             "id", "matricula", "cpf", "nome", "idade", "email", "curso",
@@ -227,7 +219,6 @@ class StudentApp:
             "telefone_celular", "sexo", "raca"
         ])
 
-        # Exporta o arquivo no formato escolhido
         try:
             if file_format == "CSV":
                 df.to_csv(file_path, index=False)
@@ -243,5 +234,5 @@ class StudentApp:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = StudentApp(root)
+    app = radapp(root)
     root.mainloop()

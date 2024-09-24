@@ -11,7 +11,6 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 
 def connect():
-    """Conecta ao banco de dados PostgreSQL."""
     conn = psycopg2.connect(
         dbname=DB_NAME,
         user=DB_USER,
@@ -22,7 +21,6 @@ def connect():
     return conn
 
 def read_students():
-    """Lê todos os alunos da tabela 'alunos'."""
     conn = connect()
     cur = conn.cursor()
     cur.execute("SELECT * FROM alunos")
@@ -32,7 +30,6 @@ def read_students():
 
 def create_student(matricula, cpf, nome, idade, email, curso, ano_conclusao, 
                    periodo_conclusao, situacao, telefone_celular, sexo, raca):
-    """Insere um novo aluno na tabela 'alunos'."""
     conn = connect()
     cur = conn.cursor()
     query = """
@@ -46,7 +43,6 @@ def create_student(matricula, cpf, nome, idade, email, curso, ano_conclusao,
     conn.close()
 
 def delete_students(ids):
-    """Exclui alunos da tabela 'alunos' com base em uma lista de IDs."""
     conn = connect()
     cur = conn.cursor()
 
@@ -59,7 +55,6 @@ def delete_students(ids):
 
 def update_student(id, matricula, cpf, nome, idade, email, curso, ano_conclusao, 
                    periodo_conclusao, situacao, telefone_celular, sexo, raca):
-    """Atualiza os dados de um aluno na tabela 'alunos'."""
     conn = connect()
     cur = conn.cursor()
     query = """
